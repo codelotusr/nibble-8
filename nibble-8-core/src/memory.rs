@@ -1,5 +1,6 @@
-// 0-F font sprites, 80 bytes total
-pub const FONT_BASE: usize = 0x000;
+pub const RAM_SIZE: u16 = 4096;
+pub const FONT_BASE: u16 = 0x000;
+pub const ROM_START: u16 = 0x200;
 
 pub const FONTSET: [u8; 80] = [
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -20,6 +21,14 @@ pub const FONTSET: [u8; 80] = [
     0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 ];
 
-fn main() {
-    let mut memory: [u8; 4096] = [0; 4096];
+pub struct Bus {
+    pub memory: [u8; RAM_SIZE as usize],
+}
+
+impl Bus {
+    pub fn new() -> Self {
+        Self {
+            memory: [0; RAM_SIZE as usize],
+        }
+    }
 }

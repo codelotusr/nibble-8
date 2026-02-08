@@ -1,0 +1,3 @@
+enum Instruction {}
+
+impl Instruction {}

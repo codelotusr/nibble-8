@@ -2,10 +2,14 @@
 
 ## Milestones
 
-### 1. Core
+### 1. Cpu architecture
 
-- [x] **Memory buffer:** Initialize `memory: [u8; 4096]`.
+- [ ] **Memory buffer:** Initialize `memory: [u8; 4096]`.
 - [ ] **CPU boot state:** Initialize 16-bit Program Counter (`PC`) to `0x200`.
+- [ ] Index: Initialize 16-bit Index Register (`I`).
+- [ ] Refresh rate: Initialize 8-bit Delay Timer (`60Hz`).
+- [ ] Sound: Initialize 8-bit Sound Timer.
+- [ ] Registers: Initialize 16 8-bit general-purpose variable registers (`V0...VF`).
 
 ## Specifications
 
