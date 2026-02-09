@@ -10,7 +10,7 @@ pub fn main() {
     let video_subsystem = sdl_context.video().unwrap();
 
     let window = video_subsystem
-        .window("Nibble-8", 800, 600)
+        .window("Nibble-8", 640, 320)
         .position_centered()
         .build()
         .unwrap();

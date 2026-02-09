@@ -1,7 +1,8 @@
 pub const RAM_SIZE: u16 = 4096;
-pub const FONT_BASE: u16 = 0x000;
+pub const FONT_BASE: u16 = 0x050;
 pub const ROM_START: u16 = 0x200;
 
+// 5x16
 pub const FONTSET: [u8; 80] = [
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -27,8 +28,37 @@ pub struct Bus {
 
 impl Bus {
     pub fn new() -> Self {
-        Self {
+        let mut bus = Self {
             memory: [0; RAM_SIZE as usize],
+        };
+
+        for (i, byte) in FONTSET.iter().enumerate() {
+            bus.memory[FONT_BASE as usize + i] = *byte;
         }
+
+        bus
+    }
+}
+
+impl Default for Bus {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_fontset_is_loaded() {
+        let bus = Bus::new();
+
+        // The first byte of the FONTSET (for '0') should be 0xF0
+        assert_eq!(bus.memory[FONT_BASE as usize], 0xF0);
+
+        // The last byte (for 'F') should be 0x80
+        let last_idx = FONT_BASE as usize + FONTSET.len() - 1;
+        assert_eq!(bus.memory[last_idx], 0x80);
     }
 }
