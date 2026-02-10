@@ -1,4 +1,9 @@
-use crate::{Bus, decoder::decode, instruction::Instruction, memory::ROM_START};
+use crate::{
+    Bus,
+    decoder::decode,
+    instruction::Instruction,
+    memory::{ROM_START, SCREEN_HEIGHT, SCREEN_WIDTH},
+};
 
 pub struct Cpu {
     v_registers: [u8; 16],
@@ -19,11 +24,40 @@ impl Cpu {
         }
     }
 
-    fn clear_screen(&mut self) {}
+    fn clear_screen(&mut self, bus: &mut Bus) {
+        bus.clear_display();
+    }
 
-    fn draw_sprite(&mut self, x: u8, y: u8, n: u8) {}
+    fn draw_sprite(&mut self, x: u8, y: u8, n: u8, bus: &mut Bus) {
+        let x_coord = self.v_registers[x as usize] % SCREEN_WIDTH as u8;
+        let y_coord = self.v_registers[y as usize] % SCREEN_HEIGHT as u8;
 
-    fn fetch(&mut self, bus: &Bus) -> u16 {
+        self.v_registers[0xF] = 0;
+
+        for row in 0..n {
+            let current_y = y_coord + row;
+            if current_y >= SCREEN_HEIGHT as u8 {
+                break;
+            }
+
+            let sprite_row = bus.memory[self.i as usize + row as usize];
+
+            for bit_idx in 0..8 {
+                let current_x = x_coord + bit_idx;
+                if current_x >= SCREEN_WIDTH as u8 {
+                    break;
+                }
+
+                let bit = (sprite_row >> (7 - bit_idx)) & 1;
+
+                if bit == 1 && bus.write_pixel(current_x, current_y, 1) {
+                    self.v_registers[0xF] = 1;
+                }
+            }
+        }
+    }
+
+    pub fn fetch(&mut self, bus: &Bus) -> u16 {
         let byte1: u16 = (bus.memory[self.pc as usize] as u16) << 8;
         let byte2: u16 = bus.memory[self.pc as usize + 1] as u16;
 
@@ -34,21 +68,23 @@ impl Cpu {
         byte1 | byte2
     }
 
-    fn execute(&mut self, opcode: u16) -> bool {
+    pub fn execute(&mut self, opcode: u16, bus: &mut Bus) -> bool {
         let mut should_redraw = false;
         let instruction = decode(opcode).expect("Invalid Opcode");
 
         match instruction {
             Instruction::Cls => {
-                self.clear_screen();
+                self.clear_screen(bus);
                 should_redraw = true;
             }
             Instruction::Jump(nnn) => self.pc = nnn,
             Instruction::SetRegVX(x, kk) => self.v_registers[x as usize] = kk,
-            Instruction::AddValueToVX(x, kk) => self.v_registers[x as usize] += kk,
+            Instruction::AddValueToVX(x, kk) => {
+                self.v_registers[x as usize] = self.v_registers[x as usize].wrapping_add(kk)
+            }
             Instruction::SetIndex(nnn) => self.i = nnn,
             Instruction::Draw(x, y, n) => {
-                self.draw_sprite(x, y, n);
+                self.draw_sprite(x, y, n, bus);
                 should_redraw = true;
             }
         }
@@ -67,10 +103,18 @@ impl Default for Cpu {
 mod tests {
     use super::*;
 
+    fn setup() -> (Cpu, Bus) {
+        (Cpu::new(), Bus::new())
+    }
+
+    fn setup_with_sprite(bus: &mut Bus, cpu: &mut Cpu, address: u16, data: u8) {
+        bus.memory[address as usize] = data;
+        cpu.i = address;
+    }
+
     #[test]
     fn test_fetch_opcode_logic() {
-        let mut cpu = Cpu::new();
-        let mut bus = Bus::new();
+        let (mut cpu, mut bus) = setup();
 
         let dummy_rom = [0x12, 0x34];
 
@@ -84,22 +128,73 @@ mod tests {
     }
 
     #[test]
-    fn test_op_cls() {}
+    fn test_op_cls() {
+        let (mut cpu, mut bus) = setup();
+        setup_with_sprite(&mut bus, &mut cpu, 0x400, 0xF0);
+
+        cpu.v_registers[0] = 10;
+        cpu.v_registers[1] = 10;
+
+        // Draw something first
+        cpu.execute(0xD011, &mut bus);
+        assert_eq!(bus.get_pixel(10, 10), 1);
+
+        // Test the Clear
+        cpu.execute(0x00E0, &mut bus);
+        assert_eq!(bus.get_pixel(10, 10), 0);
+    }
 
     #[test]
-    fn test_op_6xkk_set_vx() {}
+    fn test_op_6xkk_set_vx() {
+        let (mut cpu, mut bus) = setup();
+
+        cpu.execute(0x6350, &mut bus);
+        assert_eq!(cpu.v_registers[3], 0x50);
+    }
 
     #[test]
-    fn test_op_1nnn_jump() {}
+    fn test_op_1nnn_jump() {
+        let (mut cpu, mut bus) = setup();
+
+        cpu.execute(0x1234, &mut bus);
+        assert_eq!(cpu.pc, 0x234);
+    }
 
     #[test]
-    fn test_op_7xkk_add_to_vx() {}
+    fn test_op_7xkk_add_to_vx() {
+        let (mut cpu, mut bus) = setup();
+        cpu.v_registers[1] = 0xFE; // 254
+
+        // Add 3 to register 1 (should result in 1, wrapping around)
+        cpu.execute(0x7103, &mut bus);
+
+        assert_eq!(cpu.v_registers[1], 0x01);
+        assert_eq!(cpu.v_registers[0xF], 0, "VF should NOT be affected by 7XKK");
+    }
 
     #[test]
-    fn test_op_annn_set_index() {}
+    fn test_op_annn_set_index() {
+        let (mut cpu, mut bus) = setup();
+
+        cpu.execute(0xA123, &mut bus);
+        assert_eq!(cpu.i, 0x123);
+    }
 
     #[test]
-    fn test_op_dxyn_draw() {}
+    fn test_op_dxyn_draw() {
+        let (mut cpu, mut bus) = setup();
+        setup_with_sprite(&mut bus, &mut cpu, 0x400, 0xF0);
 
-    // PC should never go past RAM_SIZE or should wrap if it does?
+        cpu.v_registers[0] = 10;
+        cpu.v_registers[1] = 10;
+
+        cpu.execute(0xD011, &mut bus);
+        assert_eq!(bus.get_pixel(10, 10), 1);
+        assert_eq!(cpu.v_registers[0xF], 0);
+
+        // Test Collision
+        cpu.execute(0xD011, &mut bus);
+        assert_eq!(bus.get_pixel(10, 10), 0);
+        assert_eq!(cpu.v_registers[0xF], 1);
+    }
 }

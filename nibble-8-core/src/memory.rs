@@ -60,8 +60,22 @@ impl Bus {
         Ok(())
     }
 
-    pub fn write_pixel(x: u8, y: u8, value: u8) -> bool {
-        true
+    pub fn write_pixel(&mut self, x: u8, y: u8, value: u8) -> bool {
+        let index = (y as usize * SCREEN_WIDTH) + x as usize;
+        let old_pixel = self.display.display_buffer[index];
+
+        self.display.display_buffer[index] ^= value;
+
+        old_pixel == 1 && self.display.display_buffer[index] == 0
+    }
+
+    pub fn get_pixel(&self, x: usize, y: usize) -> u8 {
+        let index = (y * SCREEN_WIDTH) + x;
+        self.display.display_buffer[index]
+    }
+
+    pub fn clear_display(&mut self) {
+        self.display.display_buffer.fill(0);
     }
 }
 
