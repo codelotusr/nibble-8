@@ -23,6 +23,7 @@ impl Cpu {
         let byte1: u16 = (bus.memory[self.pc as usize] as u16) << 8;
         let byte2: u16 = bus.memory[self.pc as usize + 1] as u16;
 
+        // BUG what if it goes past RAM_SIZE?
         self.pc += 2;
 
         byte1 | byte2
@@ -54,4 +55,6 @@ mod tests {
         // pc should move forward upon reading bytes from memory (2 bytes at a time)
         assert_eq!(cpu.pc, 0x202);
     }
+
+    // PC should never go past RAM_SIZE or should wrap if it does?
 }

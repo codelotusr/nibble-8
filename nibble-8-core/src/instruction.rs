@@ -1,10 +1,8 @@
 enum Instruction {
+    Cls(),
     Jump(u16),
-}
-
-impl Instruction {}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
+    SetRegVX(u8, u8),
+    AddValueToVX(u8, u8),
+    SetIndex(u16),
+    Draw(u8, u8, u8),
 }
