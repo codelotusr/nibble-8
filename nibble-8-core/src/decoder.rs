@@ -57,6 +57,7 @@ pub fn decode(opcode: u16) -> Option<Instruction> {
             )),
             0x1 => Some(Instruction::Or(opcode_components.x, opcode_components.y)),
             0x2 => Some(Instruction::And(opcode_components.x, opcode_components.y)),
+            0x3 => Some(Instruction::Xor(opcode_components.x, opcode_components.y)),
             _ => None,
         },
         0xA => Some(Instruction::LoadI(opcode_components.nnn)),
