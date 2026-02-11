@@ -66,6 +66,7 @@ pub fn decode(opcode: u16) -> Option<Instruction> {
                 opcode_components.x,
                 opcode_components.y,
             )),
+            0x6 => Some(Instruction::Shr(opcode_components.x, opcode_components.y)),
             _ => None,
         },
         0xA => Some(Instruction::LoadI(opcode_components.nnn)),
