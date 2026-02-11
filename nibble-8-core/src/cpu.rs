@@ -94,6 +94,11 @@ impl Cpu {
                 self.stack[self.sp as usize] = self.pc;
                 self.pc = nnn;
             }
+            Instruction::SkipEq(x, kk) => {
+                if self.v_registers[x as usize] == kk {
+                    self.pc += 2;
+                }
+            }
             Instruction::Load(x, kk) => self.v_registers[x as usize] = kk,
             Instruction::Add(x, kk) => {
                 self.v_registers[x as usize] = self.v_registers[x as usize].wrapping_add(kk)
