@@ -4,6 +4,33 @@ use crate::{
     instruction::Instruction,
     memory::{ROM_START, SCREEN_HEIGHT, SCREEN_WIDTH},
 };
+use rand::{self, Rng};
+
+pub trait RngSource {
+    fn next_byte(&mut self) -> u8;
+}
+
+pub struct ThreadRngSource {
+    rng: rand::rngs::ThreadRng,
+}
+
+impl ThreadRngSource {
+    pub fn new() -> Self {
+        Self { rng: rand::rng() }
+    }
+}
+
+impl Default for ThreadRngSource {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl RngSource for ThreadRngSource {
+    fn next_byte(&mut self) -> u8 {
+        self.rng.next_u32() as u8
+    }
+}
 
 pub struct Cpu {
     v_registers: [u8; 16],
@@ -13,10 +40,11 @@ pub struct Cpu {
     sound_timer: u8,
     stack: [u16; 16],
     sp: u8,
+    rng: Box<dyn RngSource>,
 }
 
 impl Cpu {
-    pub fn new() -> Self {
+    pub fn new(rng: Box<dyn RngSource>) -> Self {
         Self {
             v_registers: [0; 16],
             pc: ROM_START,
@@ -25,6 +53,7 @@ impl Cpu {
             sound_timer: 0,
             stack: [0; 16],
             sp: 0,
+            rng,
         }
     }
 
@@ -188,7 +217,7 @@ impl Cpu {
 
 impl Default for Cpu {
     fn default() -> Self {
-        Self::new()
+        Self::new(Box::new(ThreadRngSource::new()))
     }
 }
 
@@ -196,8 +225,24 @@ impl Default for Cpu {
 mod tests {
     use super::*;
 
+    pub struct MockRng {
+        pub value: u8,
+    }
+
+    impl MockRng {
+        pub fn new(value: u8) -> Self {
+            Self { value }
+        }
+    }
+
+    impl RngSource for MockRng {
+        fn next_byte(&mut self) -> u8 {
+            self.value
+        }
+    }
+
     fn setup() -> (Cpu, Bus) {
-        (Cpu::new(), Bus::new())
+        (Cpu::new(Box::new(MockRng::new(0x54))), Bus::new())
     }
 
     fn setup_with_sprite(bus: &mut Bus, cpu: &mut Cpu, address: u16, data: u8) {
@@ -525,6 +570,17 @@ mod tests {
 
         cpu.execute(0xB234, &mut bus);
         assert_eq!(cpu.pc, 0x266);
+    }
+
+    #[test]
+    fn test_op_cxkk_rand() {
+        let (mut cpu, mut bus) = setup();
+        cpu.v_registers[0x4] = 0xFF;
+
+        cpu.execute(0xC442, &mut bus);
+
+        // 0x54 & 0x42 = 0x40 (I'm using mock rand generator)
+        assert_eq!(cpu.v_registers[0x4], 0x40);
     }
 
     #[test]

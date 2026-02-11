@@ -1,5 +1,6 @@
 extern crate sdl2;
 
+use nibble_8_core::cpu::ThreadRngSource;
 use nibble_8_core::memory::{SCREEN_HEIGHT, SCREEN_WIDTH};
 use nibble_8_core::{Bus, Cpu};
 use sdl2::event::Event;
@@ -21,7 +22,7 @@ pub fn main() {
 
     let mut canvas = window.into_canvas().build().unwrap();
 
-    let mut cpu = Cpu::new();
+    let mut cpu = Cpu::new(Box::new(ThreadRngSource::new()));
     let mut bus = Bus::new();
     let rom_vec = read("./roms/3-corax+.ch8").expect("Failed to read ROM file");
     bus.load_rom(&rom_vec).unwrap();
