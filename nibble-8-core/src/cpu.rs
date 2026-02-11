@@ -321,6 +321,17 @@ mod tests {
     }
 
     #[test]
+    fn test_op_8xy3_xor() {
+        let (mut cpu, mut bus) = setup();
+
+        cpu.v_registers[0x7] = 0x42;
+        cpu.v_registers[0x4] = 0x54;
+
+        cpu.execute(0x8473, &mut bus);
+        assert_eq!(cpu.v_registers[0x4], 0x16);
+    }
+
+    #[test]
     fn test_op_annn_load_i() {
         let (mut cpu, mut bus) = setup();
 
