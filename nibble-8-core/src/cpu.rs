@@ -116,6 +116,7 @@ impl Cpu {
             Instruction::LoadReg(x, y) => {
                 self.v_registers[x as usize] = self.v_registers[y as usize]
             }
+            Instruction::Or(x, y) => self.v_registers[x as usize] |= self.v_registers[y as usize],
             Instruction::LoadI(nnn) => self.i = nnn,
             Instruction::Draw(x, y, n) => {
                 self.draw_sprite(x, y, n, bus);
