@@ -174,6 +174,7 @@ impl Cpu {
                 }
             }
             Instruction::LoadI(nnn) => self.i = nnn,
+            Instruction::JumpOffset(nnn) => self.pc = nnn + self.v_registers[0x0] as u16,
             Instruction::Draw(x, y, n) => {
                 self.draw_sprite(x, y, n, bus);
                 should_redraw = true;

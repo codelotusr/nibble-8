@@ -79,6 +79,7 @@ pub fn decode(opcode: u16) -> Option<Instruction> {
             _ => None,
         },
         0xA => Some(Instruction::LoadI(opcode_components.nnn)),
+        0xB => Some(Instruction::JumpOffset(opcode_components.nnn)),
         0xD => Some(Instruction::Draw(
             opcode_components.x,
             opcode_components.y,
