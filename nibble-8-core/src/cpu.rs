@@ -99,6 +99,11 @@ impl Cpu {
                     self.pc += 2;
                 }
             }
+            Instruction::SkipNotEq(x, kk) => {
+                if self.v_registers[x as usize] != kk {
+                    self.pc += 2;
+                }
+            }
             Instruction::Load(x, kk) => self.v_registers[x as usize] = kk,
             Instruction::Add(x, kk) => {
                 self.v_registers[x as usize] = self.v_registers[x as usize].wrapping_add(kk)
@@ -223,11 +228,11 @@ mod tests {
         cpu.v_registers[0x6] = 0x78;
         let old_pc = cpu.pc;
 
-        cpu.execute(0x3678, &mut bus);
+        cpu.execute(0x4678, &mut bus);
         assert_eq!(cpu.v_registers[0x6], 0x78);
         assert_eq!(cpu.pc, old_pc);
 
-        cpu.execute(0x3612, &mut bus);
+        cpu.execute(0x4612, &mut bus);
         assert_ne!(cpu.v_registers[0x6], 0x12);
         assert_eq!(cpu.pc, old_pc + 2);
     }

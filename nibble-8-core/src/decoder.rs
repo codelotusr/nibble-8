@@ -37,6 +37,10 @@ pub fn decode(opcode: u16) -> Option<Instruction> {
             opcode_components.x,
             opcode_components.kk,
         )),
+        0x4 => Some(Instruction::SkipNotEq(
+            opcode_components.x,
+            opcode_components.kk,
+        )),
         0x6 => Some(Instruction::Load(opcode_components.x, opcode_components.kk)),
         0x7 => Some(Instruction::Add(opcode_components.x, opcode_components.kk)),
         0xA => Some(Instruction::LoadI(opcode_components.nnn)),
