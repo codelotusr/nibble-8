@@ -398,6 +398,27 @@ mod tests {
         assert_eq!(cpu.v_registers[0x4], 0xD0);
     }
 
+    // If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2.
+    // TODO also look into RESEARCH.md, there are 2 versions of this, the legacy op copies VY into
+    // VX and then shifts, the modern op just shifts. So maybe add a config?
+    #[test]
+    fn test_op_8xy6_shr() {
+        let (mut cpu, mut bus) = setup();
+
+        cpu.v_registers[0x4] = 0xA9;
+        // carry flag should be 0 at start
+        assert_eq!(cpu.v_registers[0xF], 0);
+        cpu.execute(0x8476, &mut bus);
+        // carry flag should be set to 1, since lsb is 1
+        assert_eq!(cpu.v_registers[0xF], 1);
+        assert_eq!(cpu.v_registers[0x4], 0x54);
+
+        cpu.execute(0x8476, &mut bus);
+        // carry flag should be set to 0, since lsb is 0
+        assert_eq!(cpu.v_registers[0xF], 0);
+        assert_eq!(cpu.v_registers[0x4], 0x2A);
+    }
+
     #[test]
     fn test_op_annn_load_i() {
         let (mut cpu, mut bus) = setup();
