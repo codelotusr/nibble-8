@@ -41,10 +41,13 @@ pub fn decode(opcode: u16) -> Option<Instruction> {
             opcode_components.x,
             opcode_components.kk,
         )),
-        0x5 => Some(Instruction::SkipRegEq(
-            opcode_components.x,
-            opcode_components.y,
-        )),
+        0x5 => match opcode_components.n {
+            0x0 => Some(Instruction::SkipRegEq(
+                opcode_components.x,
+                opcode_components.y,
+            )),
+            _ => None,
+        },
         0x6 => Some(Instruction::Load(opcode_components.x, opcode_components.kk)),
         0x7 => Some(Instruction::Add(opcode_components.x, opcode_components.kk)),
         0xA => Some(Instruction::LoadI(opcode_components.nnn)),

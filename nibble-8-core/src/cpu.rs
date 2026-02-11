@@ -281,6 +281,17 @@ mod tests {
     }
 
     #[test]
+    fn test_op_8xy0_load() {
+        let (mut cpu, mut bus) = setup();
+
+        cpu.v_registers[0x7] = 0x42;
+        cpu.v_registers[0x4] = 0x00;
+
+        cpu.execute(0x8470, &mut bus);
+        assert_eq!(cpu.v_registers[0x4], cpu.v_registers[0x7]);
+    }
+
+    #[test]
     fn test_op_annn_load_i() {
         let (mut cpu, mut bus) = setup();
 
