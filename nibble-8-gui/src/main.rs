@@ -23,7 +23,7 @@ pub fn main() {
 
     let mut cpu = Cpu::new();
     let mut bus = Bus::new();
-    let rom_vec = read("./roms/2-ibm-logo.ch8").expect("Failed to read ROM file");
+    let rom_vec = read("./roms/3-corax+.ch8").expect("Failed to read ROM file");
     bus.load_rom(&rom_vec).unwrap();
 
     canvas.set_draw_color(Color::RGB(0, 255, 255));

@@ -74,7 +74,8 @@ impl Cpu {
 
     pub fn execute(&mut self, opcode: u16, bus: &mut Bus) -> bool {
         let mut should_redraw = false;
-        let instruction = decode(opcode).expect("Invalid Opcode");
+        let instruction =
+            decode(opcode).unwrap_or_else(|| panic!("Invalid opcode: {:#06X}", opcode));
 
         match instruction {
             Instruction::Cls => {
@@ -304,6 +305,17 @@ mod tests {
 
         cpu.execute(0x8471, &mut bus);
         assert_eq!(cpu.v_registers[0x4], 0x56);
+    }
+
+    #[test]
+    fn test_op_8xy2_and() {
+        let (mut cpu, mut bus) = setup();
+
+        cpu.v_registers[0x7] = 0x42;
+        cpu.v_registers[0x4] = 0x54;
+
+        cpu.execute(0x8471, &mut bus);
+        assert_eq!(cpu.v_registers[0x4], 0x40);
     }
 
     #[test]
