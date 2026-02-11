@@ -3,6 +3,7 @@ pub const FONT_BASE: u16 = 0x050;
 pub const ROM_START: u16 = 0x200;
 pub const SCREEN_WIDTH: usize = 64;
 pub const SCREEN_HEIGHT: usize = 32;
+pub const KEY_COUNT: usize = 16;
 
 // 5x16
 pub const FONTSET: [u8; 80] = [
@@ -28,9 +29,30 @@ struct Display {
     display_buffer: [u8; SCREEN_WIDTH * SCREEN_HEIGHT],
 }
 
+struct Keypad {
+    keys: [bool; 16],
+}
+
+impl Keypad {
+    fn new() -> Self {
+        Self {
+            keys: [false; KEY_COUNT],
+        }
+    }
+
+    pub fn is_pressed(&self, key: u8) -> bool {
+        self.keys[key as usize]
+    }
+
+    pub fn set_key(&mut self, key: u8, pressed: bool) {
+        self.keys[key as usize] = pressed;
+    }
+}
+
 pub struct Bus {
     pub memory: [u8; RAM_SIZE as usize],
     display: Display,
+    keypad: Keypad,
 }
 
 impl Bus {
@@ -40,6 +62,7 @@ impl Bus {
             display: Display {
                 display_buffer: [0; SCREEN_WIDTH * SCREEN_HEIGHT],
             },
+            keypad: Keypad::new(),
         };
 
         for (i, &byte) in FONTSET.iter().enumerate() {
@@ -76,6 +99,14 @@ impl Bus {
 
     pub fn clear_display(&mut self) {
         self.display.display_buffer.fill(0);
+    }
+
+    pub fn is_key_pressed(&self, key: u8) -> bool {
+        self.keypad.is_pressed(key)
+    }
+
+    pub fn set_key(&mut self, key: u8, pressed: bool) {
+        self.keypad.set_key(key, pressed);
     }
 }
 

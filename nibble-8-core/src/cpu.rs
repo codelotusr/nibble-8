@@ -601,4 +601,16 @@ mod tests {
         assert_eq!(bus.get_pixel(10, 10), 0);
         assert_eq!(cpu.v_registers[0xF], 1);
     }
+
+    #[test]
+    fn test_op_ex9e_skip_if_pressed() {
+        let (mut cpu, mut bus) = setup();
+
+        let old_pc = cpu.pc;
+
+        cpu.execute(0xE09E, &mut bus);
+        assert_eq!(cpu.pc, old_pc);
+        bus.set_key(0, true);
+        assert_eq!(cpu.pc, old_pc + 2);
+    }
 }
