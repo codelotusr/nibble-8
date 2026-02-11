@@ -238,6 +238,24 @@ mod tests {
     }
 
     #[test]
+    fn test_op_5xy0_skip_reg_eq() {
+        let (mut cpu, mut bus) = setup();
+
+        cpu.v_registers[0x6] = 0x78;
+        cpu.v_registers[0x7] = 0x67;
+        let old_pc = cpu.pc;
+
+        cpu.execute(0x5670, &mut bus);
+        assert_ne!(cpu.v_registers[0x6], cpu.v_registers[0x7]);
+        assert_eq!(cpu.pc, old_pc);
+
+        cpu.v_registers[0x6] = 0x67;
+        cpu.execute(0x5670, &mut bus);
+        assert_eq!(cpu.v_registers[0x6], cpu.v_registers[0x7]);
+        assert_eq!(cpu.pc, old_pc + 2);
+    }
+
+    #[test]
     fn test_op_6xkk_load() {
         let (mut cpu, mut bus) = setup();
 
