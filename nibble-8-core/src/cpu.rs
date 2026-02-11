@@ -104,6 +104,11 @@ impl Cpu {
                     self.pc += 2;
                 }
             }
+            Instruction::SkipRegEq(x, y) => {
+                if self.v_registers[x as usize] == self.v_registers[y as usize] {
+                    self.pc += 2;
+                }
+            }
             Instruction::Load(x, kk) => self.v_registers[x as usize] = kk,
             Instruction::Add(x, kk) => {
                 self.v_registers[x as usize] = self.v_registers[x as usize].wrapping_add(kk)
