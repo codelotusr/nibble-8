@@ -11,6 +11,8 @@ pub struct Cpu {
     i: u16,
     delay_timer: u8,
     sound_timer: u8,
+    stack: [u16; 16],
+    sp: u8,
 }
 
 impl Cpu {
@@ -21,6 +23,8 @@ impl Cpu {
             i: 0,
             delay_timer: 0,
             sound_timer: 0,
+            stack: [0; 16],
+            sp: 0,
         }
     }
 
@@ -78,15 +82,16 @@ impl Cpu {
                 should_redraw = true;
             }
             Instruction::Jump(nnn) => self.pc = nnn,
-            Instruction::SetRegVX(x, kk) => self.v_registers[x as usize] = kk,
-            Instruction::AddValueToVX(x, kk) => {
+            Instruction::Load(x, kk) => self.v_registers[x as usize] = kk,
+            Instruction::Add(x, kk) => {
                 self.v_registers[x as usize] = self.v_registers[x as usize].wrapping_add(kk)
             }
-            Instruction::SetIndex(nnn) => self.i = nnn,
+            Instruction::LoadI(nnn) => self.i = nnn,
             Instruction::Draw(x, y, n) => {
                 self.draw_sprite(x, y, n, bus);
                 should_redraw = true;
             }
+            _ => (),
         }
 
         should_redraw

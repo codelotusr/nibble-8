@@ -31,15 +31,9 @@ pub fn decode(opcode: u16) -> Option<Instruction> {
             _ => None,
         },
         0x1 => Some(Instruction::Jump(opcode_components.nnn)),
-        0x6 => Some(Instruction::SetRegVX(
-            opcode_components.x,
-            opcode_components.kk,
-        )),
-        0x7 => Some(Instruction::AddValueToVX(
-            opcode_components.x,
-            opcode_components.kk,
-        )),
-        0xA => Some(Instruction::SetIndex(opcode_components.nnn)),
+        0x6 => Some(Instruction::Load(opcode_components.x, opcode_components.kk)),
+        0x7 => Some(Instruction::Add(opcode_components.x, opcode_components.kk)),
+        0xA => Some(Instruction::LoadI(opcode_components.nnn)),
         0xD => Some(Instruction::Draw(
             opcode_components.x,
             opcode_components.y,
