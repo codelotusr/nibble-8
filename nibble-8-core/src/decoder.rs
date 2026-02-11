@@ -71,6 +71,13 @@ pub fn decode(opcode: u16) -> Option<Instruction> {
             0xE => Some(Instruction::Shl(opcode_components.x, opcode_components.y)),
             _ => None,
         },
+        0x9 => match opcode_components.n {
+            0x0 => Some(Instruction::SkipRegNotEq(
+                opcode_components.x,
+                opcode_components.y,
+            )),
+            _ => None,
+        },
         0xA => Some(Instruction::LoadI(opcode_components.nnn)),
         0xD => Some(Instruction::Draw(
             opcode_components.x,

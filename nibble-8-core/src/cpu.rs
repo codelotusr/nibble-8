@@ -168,6 +168,11 @@ impl Cpu {
                 }
                 self.v_registers[x as usize] <<= 1;
             }
+            Instruction::SkipRegNotEq(x, y) => {
+                if self.v_registers[x as usize] != self.v_registers[y as usize] {
+                    self.pc += 2;
+                }
+            }
             Instruction::LoadI(nnn) => self.i = nnn,
             Instruction::Draw(x, y, n) => {
                 self.draw_sprite(x, y, n, bus);
