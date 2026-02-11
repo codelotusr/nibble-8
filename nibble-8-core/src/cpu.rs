@@ -82,6 +82,11 @@ impl Cpu {
                 should_redraw = true;
             }
             Instruction::Jump(nnn) => self.pc = nnn,
+            Instruction::Call(nnn) => {
+                self.sp += 1;
+                self.stack[self.sp as usize] = self.pc;
+                self.pc = nnn;
+            }
             Instruction::Load(x, kk) => self.v_registers[x as usize] = kk,
             Instruction::Add(x, kk) => {
                 self.v_registers[x as usize] = self.v_registers[x as usize].wrapping_add(kk)
@@ -165,7 +170,7 @@ mod tests {
 
         cpu.execute(0x2432, &mut bus);
         assert_eq!(cpu.sp, 1);
-        assert_eq!(cpu.stack[0], old_pc);
+        assert_eq!(cpu.stack[cpu.sp as usize], old_pc);
         assert_eq!(cpu.pc, 0x432);
     }
 
