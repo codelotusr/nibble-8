@@ -160,6 +160,14 @@ impl Cpu {
                 self.v_registers[x as usize] = result;
                 self.v_registers[0xF] = carry;
             }
+            Instruction::Shl(x, _) => {
+                if (self.v_registers[x as usize] & 0x80) != 0 {
+                    self.v_registers[0xF] = 1;
+                } else {
+                    self.v_registers[0xF] = 0;
+                }
+                self.v_registers[x as usize] <<= 1;
+            }
             Instruction::LoadI(nnn) => self.i = nnn,
             Instruction::Draw(x, y, n) => {
                 self.draw_sprite(x, y, n, bus);
