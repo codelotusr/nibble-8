@@ -149,6 +149,17 @@ impl Cpu {
                 }
                 self.v_registers[x as usize] >>= 1;
             }
+            Instruction::Subn(x, y) => {
+                let result =
+                    self.v_registers[y as usize].wrapping_sub(self.v_registers[x as usize]);
+                let carry = if self.v_registers[y as usize] > self.v_registers[x as usize] {
+                    1
+                } else {
+                    0
+                };
+                self.v_registers[x as usize] = result;
+                self.v_registers[0xF] = carry;
+            }
             Instruction::LoadI(nnn) => self.i = nnn,
             Instruction::Draw(x, y, n) => {
                 self.draw_sprite(x, y, n, bus);
