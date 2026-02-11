@@ -118,6 +118,8 @@ impl Cpu {
                 self.v_registers[x as usize] = self.v_registers[y as usize]
             }
             Instruction::Or(x, y) => self.v_registers[x as usize] |= self.v_registers[y as usize],
+
+            Instruction::And(x, y) => self.v_registers[x as usize] &= self.v_registers[y as usize],
             Instruction::LoadI(nnn) => self.i = nnn,
             Instruction::Draw(x, y, n) => {
                 self.draw_sprite(x, y, n, bus);
@@ -314,7 +316,7 @@ mod tests {
         cpu.v_registers[0x7] = 0x42;
         cpu.v_registers[0x4] = 0x54;
 
-        cpu.execute(0x8471, &mut bus);
+        cpu.execute(0x8472, &mut bus);
         assert_eq!(cpu.v_registers[0x4], 0x40);
     }
 
