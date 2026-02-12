@@ -94,6 +94,7 @@ pub fn decode(opcode: u16) -> Option<Instruction> {
         0xF => match opcode_components.kk {
             0x07 => Some(Instruction::LoadRegFromDelay(opcode_components.x)),
             0x15 => Some(Instruction::LoadDelayFromReg(opcode_components.x)),
+            0x18 => Some(Instruction::LoadSoundFromReg(opcode_components.x)),
             0x1E => Some(Instruction::AddIndex(opcode_components.x)),
             0x33 => Some(Instruction::Bcd(opcode_components.x)),
             0x55 => Some(Instruction::DumpRegs(opcode_components.x)),
