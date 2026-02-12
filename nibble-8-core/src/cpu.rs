@@ -673,6 +673,17 @@ mod tests {
     }
 
     #[test]
+    fn test_op_fx1e_add_index() {
+        let (mut cpu, mut bus) = setup();
+        cpu.i = 0x500;
+        cpu.v_registers[1] = 0xFE;
+
+        cpu.execute(0xF11E, &mut bus);
+
+        assert_eq!(cpu.i, 0x5FE);
+    }
+
+    #[test]
     fn test_op_fx33_bcd() {
         let (mut cpu, mut bus) = setup();
         cpu.i = 0x500;
