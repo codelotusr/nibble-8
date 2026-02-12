@@ -214,6 +214,11 @@ impl Cpu {
                     self.pc += 2;
                 }
             }
+            Instruction::SkipIfNotPressed(x) => {
+                if !bus.is_key_pressed(x) {
+                    self.pc += 2;
+                }
+            }
             _ => (),
         }
 

@@ -88,6 +88,7 @@ pub fn decode(opcode: u16) -> Option<Instruction> {
         )),
         0xE => match opcode_components.kk {
             0x9E => Some(Instruction::SkipIfPressed(opcode_components.x)),
+            0xA1 => Some(Instruction::SkipIfNotPressed(opcode_components.x)),
             _ => None,
         },
         _ => None,
