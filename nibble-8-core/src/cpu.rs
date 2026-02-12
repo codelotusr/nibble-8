@@ -674,4 +674,19 @@ mod tests {
             assert_eq!(bus.memory[cpu.i as usize + x], (x * 10) as u8);
         }
     }
+
+    #[test]
+    fn test_op_fx65_fill_regs() {
+        let (mut cpu, mut bus) = setup();
+        cpu.i = 0x500;
+
+        let test_data = [0xFF, 0xEE, 0xDD, 0xCC];
+        for (index, &byte) in test_data.iter().enumerate() {
+            bus.memory[cpu.i as usize + index] = byte;
+        }
+
+        cpu.execute(0x365, &mut bus);
+
+        assert_eq!(&cpu.v_registers[0..test_data.len()], test_data);
+    }
 }
