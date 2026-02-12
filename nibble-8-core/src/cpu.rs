@@ -688,6 +688,15 @@ mod tests {
     }
 
     #[test]
+    fn test_op_fx18_load_sound_from_reg() {
+        let (mut cpu, mut bus) = setup();
+        cpu.v_registers[0x1] = 0xFF;
+
+        cpu.execute(0xF118, &mut bus);
+        assert_eq!(cpu.sound_timer, 0xFF);
+    }
+
+    #[test]
     fn test_op_fx1e_add_index() {
         let (mut cpu, mut bus) = setup();
         cpu.i = 0x500;
