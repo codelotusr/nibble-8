@@ -221,6 +221,14 @@ impl Cpu {
             Instruction::LoadRegFromDelay(x) => {
                 self.v_registers[x as usize] = self.delay_timer;
             }
+            Instruction::Bcd(x) => {
+                let hundreds = self.v_registers[x as usize] / 100;
+                let tens = (self.v_registers[x as usize] / 10) % 10;
+                let ones = self.v_registers[x as usize] % 10;
+
+                bus.memory[self.i as usize..self.i as usize + 3]
+                    .copy_from_slice(&[hundreds, tens, ones]);
+            }
             Instruction::DumpRegs(x) => {
                 for reg_num in 0..=x {
                     bus.memory[self.i as usize + reg_num as usize] =
