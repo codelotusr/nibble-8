@@ -219,6 +219,9 @@ impl Cpu {
                     self.pc += 2;
                 }
             }
+            Instruction::LoadRegFromDelay(x) => {
+                self.v_registers[x as usize] = self.delay_timer;
+            }
             _ => (),
         }
 

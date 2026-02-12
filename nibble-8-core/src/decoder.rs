@@ -91,6 +91,10 @@ pub fn decode(opcode: u16) -> Option<Instruction> {
             0xA1 => Some(Instruction::SkipIfNotPressed(opcode_components.x)),
             _ => None,
         },
+        0xF => match opcode_components.kk {
+            0x07 => Some(Instruction::LoadRegFromDelay(opcode_components.x)),
+            _ => None,
+        },
         _ => None,
     }
 }
