@@ -640,4 +640,13 @@ mod tests {
         cpu.execute(0xE0A1, &mut bus);
         assert_eq!(cpu.pc, old_pc + 2);
     }
+
+    #[test]
+    fn test_op_fx07_load_reg_from_delay() {
+        let (mut cpu, mut bus) = setup();
+
+        cpu.delay_timer = 0xFF;
+        cpu.execute(0xF007, &mut bus);
+        assert_eq!(cpu.v_registers[0x0], 0xFF);
+    }
 }
