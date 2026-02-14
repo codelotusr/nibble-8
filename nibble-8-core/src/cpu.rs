@@ -2,7 +2,7 @@ use crate::{
     Bus,
     decoder::decode,
     instruction::Instruction,
-    memory::{KEY_COUNT, ROM_START, SCREEN_HEIGHT, SCREEN_WIDTH},
+    memory::{FONT_BASE, KEY_COUNT, ROM_START, SCREEN_HEIGHT, SCREEN_WIDTH},
 };
 use rand::{self, Rng};
 
@@ -257,6 +257,9 @@ impl Cpu {
             Instruction::AddIndex(x) => {
                 self.i += self.v_registers[x as usize] as u16;
             }
+            Instruction::LoadFont(x) => {
+                self.i = FONT_BASE + ((self.v_registers[x as usize] & 0x0F) * 5) as u16;
+            }
             Instruction::Bcd(x) => {
                 let hundreds = self.v_registers[x as usize] / 100;
                 let tens = (self.v_registers[x as usize] / 10) % 10;
@@ -277,7 +280,6 @@ impl Cpu {
                         bus.memory[self.i as usize + byte_num as usize];
                 }
             }
-            _ => (),
         }
 
         should_redraw
