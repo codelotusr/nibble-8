@@ -24,7 +24,7 @@ pub fn main() {
 
     let mut cpu = Cpu::new(Box::new(ThreadRngSource::new()));
     let mut bus = Bus::new();
-    let rom_vec = read("./roms/5-quirks.ch8").expect("Failed to read ROM file");
+    let rom_vec = read("./roms/mySnake.ch8").expect("Failed to read ROM file");
     bus.load_rom(&rom_vec).unwrap();
 
     canvas.set_draw_color(Color::RGB(0, 255, 255));

@@ -292,6 +292,8 @@ impl Default for Cpu {
 
 #[cfg(test)]
 mod tests {
+    use crate::memory::FONT_BASE;
+
     use super::*;
 
     pub struct MockRng {
@@ -749,11 +751,24 @@ mod tests {
     fn test_op_fx1e_add_index() {
         let (mut cpu, mut bus) = setup();
         cpu.i = 0x500;
-        cpu.v_registers[1] = 0xFE;
+        cpu.v_registers[0x1] = 0xFE;
 
         cpu.execute(0xF11E, &mut bus);
 
         assert_eq!(cpu.i, 0x5FE);
+    }
+
+    #[test]
+    fn test_op_fx29_load_font() {
+        let (mut cpu, mut bus) = setup();
+        cpu.i = 0x500;
+        cpu.v_registers[0x1] = 0x32;
+
+        cpu.execute(0xF129, &mut bus);
+        assert_eq!(
+            cpu.i,
+            FONT_BASE + ((cpu.v_registers[0x1] & 0x0F) * 5) as u16
+        );
     }
 
     #[test]
